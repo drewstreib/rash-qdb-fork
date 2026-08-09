@@ -1,5 +1,14 @@
 <?php
 
+/* new from DREW to fix incorrect ips through proxy */
+/* all uses of REMOTE_ADDR should be replaced with this */
+function get_client_ip() {
+  return $_SERVER['HTTP_X_FORWARDED_FOR']
+    ?? $_SERVER['REMOTE_ADDR']
+    ?? $_SERVER['HTTP_CLIENT_IP']
+    ?? '';
+}
+
 /* Change urls to clickable links, and change newlines to br-tags. */
 function mangle_quote_text($txt)
 {
@@ -105,17 +114,17 @@ function set_voteip($salt)
 	    $hash = $arr[1];
 	    if (preg_match("/^(([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/", $addr)) {
 		if (md5($addr . $salt) != $hash)
-		    $addr = getenv("REMOTE_ADDR");
+		    $addr = get_client_ip(); // getenv("REMOTE_ADDR");
 		mk_cookie('voteip', $addr . '-' . md5($addr . $salt));
 		$_SESSION['voteip'] = $addr;
 	    } else {
 		/* illegal ip in cookie */
-		$addr = getenv("REMOTE_ADDR");
+		$addr = get_client_ip(); // getenv("REMOTE_ADDR");
 		mk_cookie('voteip', $addr . '-' . md5($addr . $salt));
 		$_SESSION['voteip'] = $addr;
 	    }
 	} else {
-	    $addr = getenv("REMOTE_ADDR");
+	    $addr = get_client_ip(); // getenv("REMOTE_ADDR");
 	    mk_cookie('voteip', $addr . '-' . md5($addr . $salt));
 	    $_SESSION['voteip'] = $addr;
 	}

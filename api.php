@@ -145,18 +145,18 @@ function make_query_one($db, $sql, $index = null)
 {
     $res = db_query($sql);
     $row = $res->fetchAll(PDO::FETCH_ASSOC);
-    return (isset($index)) ? $row[$index] : $row;
+    return (isset($index)) ? $row[0] : $row;
 }
 
 function do_napproved($db, $params)
 {
     $qt = db_tablename('quotes', $params);
-    return array('napproved' => db_query_singlevalue('SELECT COUNT(id) FROM '.$qt.' where queue=0'));
+    return array('napproved' => db_query_singlevalue('SELECT COUNT(id) FROM '.$qt));
 }
 function do_npending($db, $params)
 {
-    $qt = db_tablename('quotes', $params);
-    return array('npending' => db_query_singlevalue('SELECT COUNT(id) FROM '.$qt.' where queue=1'));
+    $qt = db_tablename('queue', $params);
+    return array('npending' => db_query_singlevalue('SELECT COUNT(id) FROM '.$qt));
 }
 function do_add($db, $params)
 {
@@ -187,25 +187,23 @@ function do_latest($db, $params)
 {
     $qt = db_tablename('quotes', $params);
     $since = $params['since'];
-    return make_query($db, "SELECT * from $qt where queue=0 and date>=$since");
+    return make_query($db, "SELECT * from $qt where date>=$since");
 }
 function do_last($db, $params)
 {
     $qt = db_tablename('quotes', $params);
-    return make_query_one($db, "SELECT * FROM ".$qt." WHERE queue=0 ORDER BY id DESC LIMIT 1");
+    return make_query_one($db, "SELECT * FROM ".$qt." ORDER BY id DESC LIMIT 1");
 }
 function do_random($db, $params)
 {
     $qt = db_tablename('quotes', $params);
-    $count = db_query_singlevalue('SELECT COUNT(id) FROM '.$qt.' where queue=0');
-    $index = rand(0,$count-1);
-    return make_query_one($db, 'SELECT * FROM '.$qt.' where queue=0', $index);
+    return make_query_one($db, 'SELECT * FROM '.$qt.' order by RAND() limit 1');
 }
 function do_search($db, $params)
 {
     $qt = db_tablename('quotes', $params);
     $pattern = $params['pattern'];
-    return make_query($db, "SELECT * FROM $qt where queue=0 and quote like \"%$pattern%\"");
+    return make_query($db, "SELECT * FROM $qt where quote like \"%$pattern%\"");
 }
 
 function do_approve($db, $params)
@@ -216,6 +214,8 @@ function do_approve($db, $params)
         die ('Illegal quote id: '.$params['qid']);
     }
     $verdict = $params['verdict'];
+
+    die('Not implemented yet.');
 
     switch ($verdict) {
     case 'approve':
@@ -231,8 +231,8 @@ function do_approve($db, $params)
 }
 function do_queue($db, $params)
 {
-    $qt = db_tablename('quotes', $params);
-    return make_query($db, "SELECT * FROM $qt where queue=1");
+    $qt = db_tablename('queue', $params);
+    return make_query($db, "SELECT * FROM $qt");
 }
 
 function main()
