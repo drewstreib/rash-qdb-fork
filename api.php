@@ -141,11 +141,15 @@ function make_query($db, $sql)
     }
     return $ret;
 }
-function make_query_one($db, $sql, $index = null)
+/* Despite the name this returns an ARRAY of rows, exactly like make_query(),
+   and differs from it only in fetch mode (FETCH_ASSOC, so no numeric keys in
+   the JSON). Callers that want a single row use LIMIT 1 and index [0]
+   themselves. The name is upstream's; the API responses depend on the array
+   shape, so it is not safe to "fix" without changing the published output. */
+function make_query_one($db, $sql)
 {
     $res = db_query($sql);
-    $row = $res->fetchAll(PDO::FETCH_ASSOC);
-    return (isset($index)) ? $row[0] : $row;
+    return $res->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function do_napproved($db, $params)

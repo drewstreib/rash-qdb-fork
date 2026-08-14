@@ -1,9 +1,14 @@
 <?php
 
-//if (isset($_GET['debug'])) {
-    error_reporting(E_ALL);
-    ini_set('display_errors','On');
-//}
+/* Errors go to the container log, never to the visitor. display_errors was On
+   in production here until 2026-08-14, which put paths and SQL fragments into
+   the response on any warning. log_errors has to be set explicitly: this image
+   ships it Off in the web SAPI, so turning display off on its own would route
+   errors nowhere at all. Do not add a ?debug switch to re-enable display --
+   on nhqdb the query string is the route. */
+error_reporting(E_ALL);
+ini_set('display_errors', 'Off');
+ini_set('log_errors', 'On');
 
 if (!file_exists('settings.php')) {
     header("Location: install.php");
@@ -197,7 +202,7 @@ function vote($quote_num, $method, $ajaxy=FALSE)
 {
     global $db, $TEMPLATE;
 
-    $ip = get_client_ip(); // $_SERVER['REMOTE_ADDR'];
+    $ip = get_client_ip();
     $sql = "SELECT quote_id FROM ".db_tablename('tracking')." WHERE user_ip=".$db->quote($ip).' AND quote_id='.$db->quote((int)$quote_num);
     $qid = $db->query($sql)->fetch();
 
@@ -540,7 +545,7 @@ function user_can_vote_quote($quoteid)
 {
     global $CONFIG, $db;
 
-    $ip = get_client_ip(); // $_SERVER['REMOTE_ADDR'];
+    $ip = get_client_ip();
     $row = $db->query('SELECT vote FROM '.db_tablename('tracking').' WHERE user_ip='.$db->quote($ip).' AND quote_id='.$db->quote((int)$quoteid))->fetch();
 
     if (isset($CONFIG['login_required']) && ($CONFIG['login_required'] == 1) && !isset($_SESSION['logged_in']))
@@ -1063,7 +1068,7 @@ function add_quote_do_inner()
     $quotxt = htmlspecialchars(trim($_POST["rash_quote"]));
     $innerhtml = $TEMPLATE->add_quote_outputmsg(mangle_quote_text($quotxt));
     $t = time();
-    $ip = get_client_ip(); // $_SERVER['REMOTE_ADDR'];
+    $ip = get_client_ip();
     if ($spamre && preg_match('/'.$spamre.'/', $quotxt)) {
 	$table = 'spamlog';
 	if (isset($CONFIG['spam_expire_time']) && ($CONFIG['spam_expire_time'] > 0)) {
@@ -1124,7 +1129,7 @@ function import_quotes_do_inner()
 	$quotxt = htmlspecialchars(trim($quotxt));
 	if (!(strlen($quotxt) < $CONFIG['min_quote_length'])) {
 	    $t = time();
-	    $ip = get_client_ip(); // $_SERVER['REMOTE_ADDR'];
+	    $ip = get_client_ip();
 	    if ($CONFIG['moderated_quotes']) {
 		$table = 'queue';
 	    } else {
