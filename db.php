@@ -3,7 +3,7 @@
 function get_db($CONFIG, $TEMPLATE=NULL)
 {
     try {
-	$db = new PDO($CONFIG['phptype'].":host=localhost;dbname=".$CONFIG['database'], $CONFIG['username'], $CONFIG['password']);
+	$db = new PDO($CONFIG['phptype'].":host=".$CONFIG['hostspec'].";dbname=".$CONFIG['database'], $CONFIG['username'], $CONFIG['password']);
 	return $db;
     } catch (PDOException $dberror) {
 	if ($TEMPLATE) $TEMPLATE->printheader('Error');
