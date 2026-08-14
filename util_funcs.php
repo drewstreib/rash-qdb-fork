@@ -89,10 +89,13 @@ function set_user_logged($row)
 
 function set_user_logout()
 {
-    session_unset($_SESSION['user']);
-    session_unset($_SESSION['logged_in']);
-    session_unset($_SESSION['level']);
-    session_unset($_SESSION['userid']);
+    /* session_unset() takes NO arguments and clears the whole session; the
+       calls here passed one, which PHP 7 silently ignored and PHP 8.0 turned
+       into a fatal ArgumentCountError -- so logout became a hard 500 on the
+       port. They also never did what they appear to: even on 7.x this cleared
+       everything, not the four named keys. unset() is what was meant. */
+    unset($_SESSION['user'], $_SESSION['logged_in'],
+          $_SESSION['level'], $_SESSION['userid']);
     mk_cookie('user');
     mk_cookie('userid');
     mk_cookie('passwd');

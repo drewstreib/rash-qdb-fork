@@ -33,10 +33,18 @@ function check_cmd_auth($params)
     $writeauth = USER_NORMAL;
     $seequeue = USER_MOD;
 
-    if (isset($params['login_required']) && $params['login_required'] == 1) {
+    /* 🛑 Read policy from $CONFIG, NEVER from $params.
+       main() builds $params as array_merge($CONFIG, $_REQUEST, $_SESSION), so
+       $_REQUEST overrides server config -- and these two values decide who may
+       call what. Until 2026-08-14 `?cmd=queue&public_queue=1` therefore let an
+       unauthenticated caller past the USER_MOD check on the moderation queue,
+       verified against the live API. Request parameters must never set policy.
+       ($addauth below is upstream's, assigned and never read; left alone.) */
+    global $CONFIG;
+    if (isset($CONFIG['login_required']) && $CONFIG['login_required'] == 1) {
         $addauth = USER_MOD;
     }
-    if (isset($params['public_queue']) && $params['public_queue'] == 1) {
+    if (isset($CONFIG['public_queue']) && $CONFIG['public_queue'] == 1) {
         $seequeue = USER_NORMAL;
     }
 
