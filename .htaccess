@@ -1,0 +1,12 @@
+# Deny the repository metadata and the SQL schema.
+#
+# The usual way to deploy this is a git checkout, which leaves .git inside the
+# document root. /.git/config and /.git/HEAD are then served, and the whole
+# repository can be reconstructed from them -- including anything ever
+# committed to settings.php.
+#
+# RedirectMatch rather than <DirectoryMatch>, which Apache does not permit in
+# .htaccess. 404 rather than 403 so the path is not confirmed either way.
+
+RedirectMatch 404 /\.git(/|$)
+RedirectMatch 404 /install\.sql$
