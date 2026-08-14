@@ -1,7 +1,10 @@
 <?php
 
-    error_reporting(E_ALL);
-    ini_set('display_errors','On');
+/* Same as index.php: log errors, never emit them. This matters more here --
+   a warning printed by the API lands in the middle of its own JSON. */
+error_reporting(E_ALL);
+ini_set('display_errors', 'Off');
+ini_set('log_errors', 'On');
 
 require_once('settings.php');
 require('db.php');

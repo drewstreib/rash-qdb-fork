@@ -1,9 +1,12 @@
 <?php
 
-//if (isset($_GET['debug'])) {
-    error_reporting(E_ALL);
-    ini_set('display_errors','On');
-//}
+/* Errors are logged, never shown to the visitor: a warning would otherwise
+   put filesystem paths and SQL fragments straight into the page. log_errors is
+   set explicitly because a number of stock builds ship it Off, where turning
+   display off on its own would discard errors rather than record them. */
+error_reporting(E_ALL);
+ini_set('display_errors', 'Off');
+ini_set('log_errors', 'On');
 
 if (!file_exists('settings.php')) {
     header("Location: install.php");
