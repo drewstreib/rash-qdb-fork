@@ -1,0 +1,6 @@
+# rash deploys as a checkout into the document root, so this directory would
+# otherwise be served. Nothing in here should ever be reachable over HTTP.
+Require all denied
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>
