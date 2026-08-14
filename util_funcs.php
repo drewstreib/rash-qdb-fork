@@ -172,14 +172,14 @@ function str_rand($length = 8, $seeds = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
     $str = '';
     $seeds_count = strlen($seeds);
 
-    // Seed
-    list($usec, $sec) = explode(' ', microtime());
-    $seed = (float) $sec + ((float) $usec * 100000);
-    mt_srand($seed);
+    /* Not seeded manually. mt_rand() has auto-seeded from a good source since
+       PHP 7.1, and the old microtime()-derived seed was both weaker (this
+       function generates password salts) and a PHP 8.1 deprecation, because
+       the float lost precision on the implicit cast to int. */
 
     // Generate
     for ($i = 0; $length > $i; $i++) {
-        $str .= $seeds{mt_rand(0, $seeds_count - 1)};
+        $str .= $seeds[mt_rand(0, $seeds_count - 1)];
     }
 
     return $str;

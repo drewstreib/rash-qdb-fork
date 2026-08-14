@@ -1366,10 +1366,10 @@ switch($page[0])
 		    }
 		    $query = "SELECT * FROM ".db_tablename('quotes')." WHERE (flag!=3) AND (".implode(' or ', $ids).") ORDER BY CASE id ".implode($order)." END";
 		    if ($idx > 1) $title = lang('selected_quotes');
-		    else $title = "#${_SERVER['QUERY_STRING']}";
+		    else $title = "#{$_SERVER['QUERY_STRING']}";
 		} else {
 		    $query = "SELECT * FROM ".db_tablename('quotes')." WHERE (flag!=3) AND id=".$db->quote((int)$idlist[0]);
-		    $title = "#${idlist[0]}";
+		    $title = "#{$idlist[0]}";
 		}
 		quote_generation($query, $title, -1);
 	    } else if ($_SERVER['QUERY_STRING']) {
