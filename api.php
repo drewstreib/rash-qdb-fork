@@ -1,7 +1,13 @@
 <?php
 
-    error_reporting(E_ALL);
-    ini_set('display_errors','On');
+/* Errors are logged, never returned to the caller. This file had
+   display_errors On until 2026-08-14 -- the same defect fixed in index.php
+   earlier that day and missed here, so the API went on emitting PHP warnings
+   into its own JSON. A runtime ini_set beats the zz-errors.ini drop-in, so
+   removing it is what actually closes this, not the image config. */
+error_reporting(E_ALL);
+ini_set('display_errors', 'Off');
+ini_set('log_errors', 'On');
 
 require_once('settings.php');
 require('db.php');
@@ -135,6 +141,11 @@ function login($db, $params)
 
 function make_query($db, $sql)
 {
+    /* Initialised so an empty result set returns [] rather than an undefined
+       variable. Any zero-row query -- an empty queue, a search that matches
+       nothing -- otherwise emitted a warning and returned null, which on PHP 8
+       is an E_WARNING rather than 7.3's notice. */
+    $ret = array();
     $res = db_query($sql);
     while ($row = $res->fetch()) {
         $ret[] = $row;
