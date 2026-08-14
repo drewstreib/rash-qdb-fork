@@ -3,7 +3,18 @@
 function get_db($CONFIG, $TEMPLATE=NULL)
 {
     try {
-	$db = new PDO($CONFIG['phptype'].":host=localhost;dbname=".$CONFIG['database'], $CONFIG['username'], $CONFIG['password']);
+	/* Set explicitly so behaviour does not depend on the PHP version.
+	   ERRMODE defaulted to SILENT through 7.4 and to EXCEPTION from 8.0;
+	   WARNING keeps the old control flow -- a failed call still returns
+	   false, so the many unchecked call sites behave as before -- while
+	   making failures visible in the log instead of silent.
+	   STRINGIFY_FETCHES keeps the pre-8.1 types: mysqlnd now returns native
+	   int/float for numeric columns, which changes api.php's JSON from
+	   {"napproved":"12"} to {"napproved":12}. */
+	$db = new PDO($CONFIG['phptype'].":host=localhost;dbname=".$CONFIG['database'],
+		      $CONFIG['username'], $CONFIG['password'],
+		      array(PDO::ATTR_ERRMODE => PDO::ERRMODE_WARNING,
+			    PDO::ATTR_STRINGIFY_FETCHES => true));
 	return $db;
     } catch (PDOException $dberror) {
 	if ($TEMPLATE) $TEMPLATE->printheader('Error');
