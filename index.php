@@ -179,6 +179,14 @@ function flag($quote_num, $method)
 
     $row = $db->query("SELECT id,flag,quote FROM ".db_tablename('quotes')." WHERE (flag!=3) AND id = ".$db->quote((int)$quote_num)." LIMIT 1")->fetch();
 
+    /* fetch() returns false for a missing or deleted quote, which is reachable
+       simply by requesting ?flag with no id. Every use below then indexes
+       false and a flag page is rendered for a quote that does not exist. */
+    if ($row === false) {
+	$TEMPLATE->add_message(lang('no_quote'));
+	return;
+    }
+
     if ($method == 'verdict') {
 	$ret = handle_captcha('flag', 'flag_do_inner', $row);
 	if (is_string($ret)) $TEMPLATE->add_message($ret);
@@ -201,7 +209,10 @@ function vote($quote_num, $method, $ajaxy=FALSE)
     $sql = "SELECT quote_id FROM ".db_tablename('tracking')." WHERE user_ip=".$db->quote($ip).' AND quote_id='.$db->quote((int)$quote_num);
     $qid = $db->query($sql)->fetch();
 
-    if (isset($qid) && $qid['quote_id'] == $quote_num) {
+    /* fetch() returns false when this address has not voted on this quote --
+       i.e. on every first-time vote. isset(false) is true, so the old test
+       went on to index false. */
+    if ($qid !== false && $qid['quote_id'] == $quote_num) {
 	if ($ajaxy) return 'ALREADY_VOTED';
 	$TEMPLATE->add_message(lang('tracking_check_2'));
 	return;
@@ -820,7 +831,7 @@ function userlogin($method)
 	$salt = $db->query("SELECT salt FROM ".db_tablename('users')." WHERE LOWER(user)=".$db->quote(strtolower($_POST['rash_username'])))->fetch();
 
 	// if there is no presence of a salt, it is probably md5 since old rash used plain md5
-	if(!$salt['salt']){
+	if(!($salt !== false && $salt['salt'])){
 	    $row = $db->query("SELECT * FROM ".db_tablename('users')." WHERE LOWER(user)=".$db->quote(strtolower($_POST['rash_username']))." AND `password` ='".md5($_POST['rash_password'])."'")->fetch();
 	}
 	// if there is presense of a salt, it is probably new rash passwords, so it is salted md5
@@ -829,7 +840,7 @@ function userlogin($method)
 	}
 
 	// if there is no row returned for the user, the password is expected to be false because of the AND conditional in the query
-	if(!$row['user']){
+	if($row === false || !$row['user']){
 	    $TEMPLATE->add_message(lang('login_error'));
 	} else {
 	    set_user_logged($row);
@@ -845,7 +856,7 @@ function adminlogin($method)
 	$salt = $db->query("SELECT salt FROM ".db_tablename('users')." WHERE LOWER(user)=".$db->quote(strtolower($_POST['rash_username'])))->fetch();
 
 	// if there is no presence of a salt, it is probably md5 since old rash used plain md5
-	if(!$salt['salt']){
+	if(!($salt !== false && $salt['salt'])){
 	    $row = $db->query("SELECT * FROM ".db_tablename('users')." WHERE LOWER(user)=".$db->quote(strtolower($_POST['rash_username']))." AND `password` ='".md5($_POST['rash_password'])."'")->fetch();
 	}
 	// if there is presense of a salt, it is probably new rash passwords, so it is salted md5
@@ -854,7 +865,7 @@ function adminlogin($method)
 	}
 
 	// if there is no row returned for the user, the password is expected to be false because of the AND conditional in the query
-	if(!$row['user']){
+	if($row === false || !$row['user']){
 	    $TEMPLATE->add_message(lang('login_error'));
 	} else {
 	    set_user_logged($row);
@@ -1361,10 +1372,10 @@ switch($page[0])
 		    }
 		    $query = "SELECT * FROM ".db_tablename('quotes')." WHERE (flag!=3) AND (".implode(' or ', $ids).") ORDER BY CASE id ".implode($order)." END";
 		    if ($idx > 1) $title = lang('selected_quotes');
-		    else $title = "#${_SERVER['QUERY_STRING']}";
+		    else $title = "#{$_SERVER['QUERY_STRING']}";
 		} else {
 		    $query = "SELECT * FROM ".db_tablename('quotes')." WHERE (flag!=3) AND id=".$db->quote((int)$idlist[0]);
-		    $title = "#${idlist[0]}";
+		    $title = "#{$idlist[0]}";
 		}
 		quote_generation($query, $title, -1);
 	    } else if ($_SERVER['QUERY_STRING']) {

@@ -80,10 +80,12 @@ function set_user_logged($row)
 
 function set_user_logout()
 {
-    session_unset($_SESSION['user']);
-    session_unset($_SESSION['logged_in']);
-    session_unset($_SESSION['level']);
-    session_unset($_SESSION['userid']);
+    /* session_unset() takes no arguments and clears the entire session. PHP 7
+       ignored the extra argument; PHP 8.0 raises ArgumentCountError, making
+       logout a fatal error. These calls never did what they look like either,
+       so unset() is what was meant. */
+    unset($_SESSION['user'], $_SESSION['logged_in'],
+          $_SESSION['level'], $_SESSION['userid']);
     mk_cookie('user');
     mk_cookie('userid');
     mk_cookie('passwd');
@@ -163,14 +165,14 @@ function str_rand($length = 8, $seeds = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklm
     $str = '';
     $seeds_count = strlen($seeds);
 
-    // Seed
-    list($usec, $sec) = explode(' ', microtime());
-    $seed = (float) $sec + ((float) $usec * 100000);
-    mt_srand($seed);
+    /* Not seeded by hand: mt_rand() has auto-seeded from a good source since
+       PHP 7.1, the microtime-derived value is weaker than the default for
+       something generating password salts, and casting that float to int is a
+       precision-loss deprecation on 8.1. */
 
     // Generate
     for ($i = 0; $length > $i; $i++) {
-        $str .= $seeds{mt_rand(0, $seeds_count - 1)};
+        $str .= $seeds[mt_rand(0, $seeds_count - 1)];
     }
 
     return $str;

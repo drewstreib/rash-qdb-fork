@@ -135,6 +135,9 @@ function login($db, $params)
 
 function make_query($db, $sql)
 {
+    /* Initialised so a zero-row query returns [] instead of an undefined
+       variable -- reachable on any search that matches nothing. */
+    $ret = array();
     $res = db_query($sql);
     while ($row = $res->fetch()) {
         $ret[] = $row;
