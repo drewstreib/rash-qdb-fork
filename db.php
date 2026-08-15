@@ -26,8 +26,11 @@ function get_db($CONFIG, $TEMPLATE=NULL)
 			    PDO::ATTR_STRINGIFY_FETCHES => true));
 	return $db;
     } catch (PDOException $dberror) {
+	/* The exception message names the host, the database and the
+	   username. That belongs in the log, not in the response. */
+	error_log('Database connection failed: '.$dberror->getMessage());
 	if ($TEMPLATE) $TEMPLATE->printheader('Error');
-	print $dberror->getMessage();
+	print '<p>The database is currently unavailable. Please try again later.';
 	if ($TEMPLATE) $TEMPLATE->printfooter();
 	exit;
     }
@@ -37,11 +40,13 @@ function check_db_res($res, $query=NULL)
 {
     global $db;
     if (!$res) {
-	if ($query) print '<p>Query: '.$query.'<p>';
+	/* The failing SQL and the driver message describe the schema, and on a
+	   connection-level failure the host and username too. Log them; show
+	   the visitor only that something went wrong. */
 	$err = $db->errorInfo();
-	print '<p>SQLSTATE: '. $err[0];
-	print '<p>Driver error code: '. $err[1];
-	print '<p>'.$err[2];
+	error_log('Query failed: SQLSTATE '.$err[0].' ['.$err[1].'] '.$err[2]
+		  .($query ? ' -- query: '.$query : ''));
+	print '<p>A database error occurred. Please try again later.';
 	die();
     }
 }
