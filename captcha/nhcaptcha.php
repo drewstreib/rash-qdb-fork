@@ -12,7 +12,6 @@ class nhCAPTCHA extends baseCAPTCHA {
 			       array('char'=>'%','text'=>'something edible'),
 			       array('char'=>'=','text'=>'a ring'),
 			       array('char'=>'|','text'=>'a grave'),
-			       array('char'=>'#','text'=>'a kitchen sink'),
 			       array('char'=>'^','text'=>'a trap'),
 			       array('char'=>')','text'=>'a weapon'),
 			       array('char'=>'[','text'=>'a piece of armor'),
