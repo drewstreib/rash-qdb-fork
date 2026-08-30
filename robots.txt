@@ -1,0 +1,13 @@
+# nhqdb.alt.org
+#
+# Voting is a plain GET link on every quote listing -- /?vote&<id>&plus|minus --
+# and it WRITES: quotes.rating is incremented and a row is inserted into
+# tracking. Crawlers following those links have cast a large share of this
+# site's votes since at least 2018. The links now also carry rel="nofollow";
+# this file is the second half of that fix, for crawlers that read robots.txt
+# but do not honour link-level rel.
+#
+# Nothing else is restricted. The browse, search and per-quote space is open.
+
+User-agent: *
+Disallow: /?vote
