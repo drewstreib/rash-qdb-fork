@@ -43,17 +43,21 @@ function ajax_vote(id, plusminus)
 	req = new XMLHttpRequest();
 	req.onreadystatechange = function () { ajax_vote_handler(id, plusminus); };
 	try {
-	    req.open("GET", url, true);
+	    /* POST, not GET: the server rejects a GET vote with 405. The route
+	       stays in the query string, so the body is deliberately empty. */
+	    req.open("POST", url, true);
+	    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	} catch (e) {
 	    alert(e);
 	}
-	req.send(null);
+	req.send("");
     } else if (window.ActiveXObject) { // IE
 	req = new ActiveXObject("Microsoft.XMLHTTP");
 	if (req) {
 	    req.onreadystatechange = function () { ajax_vote_handler(id, plusminus); };
-	    req.open("GET", url, true);
-	    req.send();
+	    req.open("POST", url, true);
+	    req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	    req.send("");
 	}
     }
 }

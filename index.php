@@ -1354,6 +1354,23 @@ switch($page[0])
 	case 'vote':
 	    if (isset($CONFIG['login_required']) && ($CONFIG['login_required'] == 1) && !isset($_SESSION['logged_in']))
 		break;
+	    /* Voting WRITES -- it increments quotes.rating and inserts into tracking --
+	       so it must not be reachable by GET. Crawlers following the old vote links
+	       cast at least 28.5% of the 979,705 historical votes; rel="nofollow" and
+	       robots.txt are both ADVISORY and did nothing about the ones ignoring them.
+	       This is the enforcement, and the markup in basetemplate.php + qdb.js is
+	       only what makes the site still usable once it is here.
+	       header() is safe at this point on both paths: 'vote' has printed a header
+	       but the template's printheader() opens an ob_start(), and 'ajaxvote' is
+	       excluded from printheader so it has emitted nothing at all. */
+	    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+		http_response_code(405);
+		header('Allow: POST');
+		header('Cache-Control: no-store');
+		if ($page[0] !== 'ajaxvote')
+		    $TEMPLATE->add_message(lang('vote_requires_post'));
+		break;
+	    }
 	    vote($page[1], $page[2], ($page[0] === 'ajaxvote'));
 	    break;
 	case 'voters':

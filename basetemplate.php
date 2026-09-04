@@ -529,7 +529,9 @@ abstract class BaseTemplate {
     {
 	$s = ' class="quote_plus" id="quote_plus_'.$quoteid.'"';
 	if (!$canvote) {
-	    $url = '<a href="?'.urlargs('vote',$quoteid,'plus').'" rel="nofollow"'.$s.' title="'.lang('upvote').'">+</a>';
+	    /* A form, not an anchor: voting WRITES, so it must not be reachable by GET.
+	       The query string still carries the route, so the dispatcher is unchanged. */
+	    $url = '<form method="post" action="?'.urlargs('vote',$quoteid,'plus').'" class="quote_vote"><button type="submit"'.$s.' title="'.lang('upvote').'">+</button></form>';
 	    if ($ajaxy) {
 		return '<script type="text/javascript">
 document.write(\'<a href="javascript:ajax_vote('.$quoteid.',1);" '.$s.' title="'.lang('upvote').'">+</a>\');
@@ -544,7 +546,7 @@ document.write(\'<a href="javascript:ajax_vote('.$quoteid.',1);" '.$s.' title="'
     {
 	$s = ' class="quote_minus" id="quote_minus_'.$quoteid.'"';
 	if (!$canvote) {
-	    $url = '<a href="?'.urlargs('vote',$quoteid,'minus').'" rel="nofollow"'.$s.' title="'.lang('downvote').'">-</a>';
+	    $url = '<form method="post" action="?'.urlargs('vote',$quoteid,'minus').'" class="quote_vote"><button type="submit"'.$s.' title="'.lang('downvote').'">-</button></form>';
 	    if ($ajaxy) {
 		return '<script type="text/javascript">
 document.write(\'<a href="javascript:ajax_vote('.$quoteid.',-1);" '.$s.' title="'.lang('downvote').'">-</a>\');

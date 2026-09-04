@@ -36,6 +36,7 @@ $lang = array (
 'preview_outputmsg_bottom' => '',
 'tracking_check_1'			=> "Quote has been modified, your IP has been logged, and data of your action has been recorded in the database.<br />Have a nice day!<br />",
 'tracking_check_2'			=> "You have already voted on this quote, please try again later.<br />",
+'vote_requires_post'			=> "Votes must be submitted with the vote buttons, not by following a link.<br />",
 'flag_previously_flagged'	=> "This quote has been flagged and rechecked by a moderator already.",
 'flag_currently_flagged'	=> "This quote is currently pending deletion.",
 'flag_quote_flagged'		=> "You have marked this quote for deletion.",

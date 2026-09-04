@@ -117,12 +117,33 @@ div.quote_quote{
 .quote_whole:nth-child(odd) {
 	background-color:#f0f0f0;
 }
-a.quote_plus:hover {
+/* The vote controls are POST forms now, not anchors, so the button has to sit
+   inline and shed the browser's default chrome to look like the old link. The
+   :hover rules below outrank this on specificity, so their background still wins. */
+form.quote_vote {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+button.quote_plus,
+button.quote_minus {
+  background: none;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+a.quote_plus:hover,
+button.quote_plus:hover {
   background-color:lightgreen;
   color: green;
   border: 1px inset lightgreen;
 }
-a.quote_plus {
+a.quote_plus,
+button.quote_plus {
   color: green;
   border: 1px outset lightgreen;
   display: inline-block;
@@ -132,7 +153,8 @@ a.quote_plus {
   font-weight:bold;
 }
 
-a.quote_minus {
+a.quote_minus,
+button.quote_minus {
   color: red;
   border: 1px outset pink;
   display: inline-block;
@@ -141,7 +163,8 @@ a.quote_minus {
   text-decoration: none;
   font-weight:bold;
 }
-a.quote_minus:hover {
+a.quote_minus:hover,
+button.quote_minus:hover {
   background-color:pink;
   color: red;
   border: 1px inset pink;
